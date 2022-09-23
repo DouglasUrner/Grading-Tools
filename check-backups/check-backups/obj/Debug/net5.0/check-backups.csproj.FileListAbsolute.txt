@@ -1,0 +1,5 @@
+C:\Users\urner\source\repos\check-backups\check-backups\obj\Debug\net5.0\check-backups.csproj.AssemblyReference.cache
+C:\Users\urner\source\repos\check-backups\check-backups\obj\Debug\net5.0\check-backups.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\urner\source\repos\check-backups\check-backups\obj\Debug\net5.0\check-backups.AssemblyInfoInputs.cache
+C:\Users\urner\source\repos\check-backups\check-backups\obj\Debug\net5.0\check-backups.AssemblyInfo.cs
+C:\Users\urner\source\repos\check-backups\check-backups\obj\Debug\net5.0\check-backups.csproj.CoreCompileInputs.cache
