@@ -1,27 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\urner\\source\\repos\\check-backups\\check-backups\\check-backups.csproj": {}
+    "/Users/urner/Source/GitHub/Grading-Tools/check-backups/check-backups/check-backups.csproj": {}
   },
   "projects": {
-    "C:\\Users\\urner\\source\\repos\\check-backups\\check-backups\\check-backups.csproj": {
+    "/Users/urner/Source/GitHub/Grading-Tools/check-backups/check-backups/check-backups.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\urner\\source\\repos\\check-backups\\check-backups\\check-backups.csproj",
+        "projectUniqueName": "/Users/urner/Source/GitHub/Grading-Tools/check-backups/check-backups/check-backups.csproj",
         "projectName": "check-backups",
-        "projectPath": "C:\\Users\\urner\\source\\repos\\check-backups\\check-backups\\check-backups.csproj",
-        "packagesPath": "C:\\Users\\urner\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\urner\\source\\repos\\check-backups\\check-backups\\obj\\",
+        "projectPath": "/Users/urner/Source/GitHub/Grading-Tools/check-backups/check-backups/check-backups.csproj",
+        "packagesPath": "/Users/urner/.nuget/packages/",
+        "outputPath": "/Users/urner/Source/GitHub/Grading-Tools/check-backups/check-backups/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\urner\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/urner/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -61,7 +59,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.401\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.401/RuntimeIdentifierGraph.json"
         }
       }
     }
