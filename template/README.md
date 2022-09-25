@@ -13,4 +13,4 @@
 * **CsvHelper**: read & write CSV files ([JoshClose/CsvHelper][csv]).
 
 [fa]: <https://github.com/kutoga/FluentArgs>
-[cvs]: <https://github.com/joshclose/CsvHelper/>
+[csv]: <https://github.com/joshclose/CsvHelper>
