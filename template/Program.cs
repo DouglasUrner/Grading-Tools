@@ -124,7 +124,16 @@ public class RosterInfo
   {
     var fn = ri.FullName.Trim();
     var beg = fn.IndexOf(",") + 2;
-    var end = fn.Length - (beg + 4);
+    int end;
+
+    if (fn[fn.Length - 1] == '.')
+    {
+      end = fn.Length - (beg + 2);
+    }
+    else
+    {
+      end = fn.Length - beg;
+    }
 
     return fn.Substring(beg, end).Trim();
   }
