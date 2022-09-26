@@ -201,7 +201,7 @@
       }
       else
       {
-        return new PathAndPoints(null, 0);
+        return new PathAndPoints(null, 0, "Network home directory (U:) not found.");
       }
     }
 
