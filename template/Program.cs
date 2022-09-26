@@ -11,7 +11,7 @@
   public class Program
   {
     // Command line options
-    static Options opts;
+    static Options opts = new Options();
 
     public static void Main(string[] args)
     {
@@ -24,6 +24,10 @@
           .WithDescription("Where to write results as CSVs.")
           .WithExamples("S1A1-U1L1-scores.csv")
           .IsRequired()
+        .Parameter("--due")
+          .WithDescription("The ISO date on which the assignment is due, defaults to today.")
+          .WithExamples("YYYY-MM-DD, 2001-09-22")
+          .IsOptionalWithDefault(Options.DefaultDueDate())
         .Parameter<uint>("--skip")
           .WithDescription("# of records to skip in student list.")
           .IsOptionalWithDefault(8)
@@ -35,9 +39,11 @@
           .IsOptionalWithDefault(2)
         .Flag("--verbose", "-v")
           .WithDescription("Provide detailed process trace.")
-        .Call(verbose => email => name => skip => output => roster =>
+        .Call(verbose => email => name => skip => due => output => roster =>
           {
-            opts = new Options(verbose);
+            opts.Verbose = verbose;
+            opts.DueDate = due;
+
             Process(roster, output, skip, name, email);
           }
         )
@@ -45,7 +51,7 @@
     }
     static void Process(string roster, string output, uint skip, uint name, uint email)
     {
-      if (opts.verbose) Console.WriteLine($"Skipping first {skip} records");
+      if (opts.Verbose) Console.WriteLine($"Skipping first {skip} records");
       Console.WriteLine($"Process {roster}");
 
       var config = new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -74,23 +80,20 @@
           {
             while (csv.Read())
             {
-              var record = csv.GetRecord<RosterInfo>();
+              var ri = csv.GetRecord<RosterInfo>();
 
-              // Split apart FullName into first and last names.
-              var full = record.FullName;
-              var n = full.IndexOf(",");
+              /*
+              ** Split FullName into first and last names.
+              */
+              ri.LastName = RosterInfo.InitializeLastName(ri);
+              ri.FirstName = RosterInfo.InitializeFirstName(ri);
 
-              record.LastName = full.Substring(0, n).Trim();
+              /*
+              ** Extract user name from e-mail address.
+              */
+              ri.Username = RosterInfo.InitializeUsername(ri);
 
-              var first = full.Substring(n + 2, full.Length - (n + 2)).Trim();
-              if (first[first.Length - 1] == '.')
-              {
-                first = first.Substring(0, first.Length - 3);
-                //Console.WriteLine($"first.Length: {first.Length}");
-              }
-              record.FirstName = first;
-
-              Console.WriteLine($"{record.FullName}: {record.FirstName} {record.LastName}");
+              Console.WriteLine($"{opts.NetworkHome}\\{ri.Username}\\{opts.DueDate}");
             }
           }
         }
@@ -108,20 +111,46 @@
 
 public class RosterInfo
 {
-  public string FullName { get; set; }
-  public string Email { get; set; }
-  public string LastName { get; set; }
-  public string FirstName { get; set; }
-  public string NetworkHome { get; set; }
-  public string LocalHome { get; set; }
+  // XXX - fix these so they are not-nullable.
+  public string FullName { get; set; } = string.Empty;
+  public string Email { get; set; } = string.Empty;
+  public string LastName { get; set; } = string.Empty;
+  public string FirstName { get; set; } = string.Empty;
+  public string Username { get; set; } = string.Empty;
+  public string NetworkHome { get; set; } = string.Empty;
+  public string LocalHome { get; set; } = string.Empty;
+
+  public static string InitializeFirstName(RosterInfo ri)
+  {
+    var beg = ri.FullName.IndexOf(",") + 2;
+    var end = ri.FullName.Length - (beg + 2);
+
+    return ri.FullName.Substring(beg, end).Trim();
+  }
+
+  public static string InitializeLastName(RosterInfo ri)
+  {
+    return ri.FullName.Substring(0, ri.FullName.IndexOf(",")).Trim();
+  }
+
+  public static string InitializeUsername(RosterInfo ri)
+  {
+    return ri.Email.Substring(0, ri.Email.IndexOf("@"));
+  }
 }
 
 public class Options
 {
-  public bool verbose { get; set; }
+  public string DueDate { get; set; } = string.Empty;
+  public string NetworkHome { get; set; } = "\\\\skhs02\\stusers";
+  public bool Verbose { get; set; }
 
-  public Options(bool verbose)
+  public static string DefaultDueDate()
   {
-    this.verbose = verbose;
+      var ci = System.Globalization.CultureInfo.InvariantCulture;
+      var due = DateTime.Now.ToString("s", ci);
+      var n = due.IndexOf("T");
+      
+      return due.Substring(0, n);
   }
 }
