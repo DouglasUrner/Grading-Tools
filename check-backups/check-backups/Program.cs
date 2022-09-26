@@ -104,8 +104,7 @@
       catch (System.Exception e)
       {
         // Let the user know what went wrong.
-        Console.WriteLine("The file could not be read:");
-        Console.WriteLine(e.Message);
+        Console.WriteLine(e.ToString());
         //throw;
       }
     }
@@ -120,11 +119,12 @@
       bd = FindBackupDir(homeDir);
       if (bd.path == null)
       {
+        bd.msg = $"No backup or backup directory found in {homeDir}";
         return bd;
       }
       else
       {
-        bd = FindBackupFile(bd.path);
+        bf = FindBackupFile(bd.path);
         if (bf.path == null)
         {
           var msg = $"No project backup found in {bd.path}";
@@ -132,7 +132,8 @@
         }
         else
         {
-         return bf;
+          var msg = string.Empty;
+          return new PathAndPoints(bf.path, 8 + bd.points + bf.points, msg);
         }
       }
     }
@@ -217,7 +218,7 @@
       if (File.Exists(backupDir + "\\" + backupFileName))
       {
         if (opts.Verbose) Console.WriteLine("         Exact match: " + backupFileName);
-        return new PathAndPoints(backupFileName, 4);
+        return new PathAndPoints(backupDir + "\\" + backupFileName, 4);
       }
       else
       {
@@ -235,7 +236,7 @@
           if (tm.Success)
           {
             if (opts.Verbose) Console.WriteLine("         Tight match: " + fi.FullName);
-            return new PathAndPoints(fi.Name, 3);
+            return new PathAndPoints(backupDir + "\\" + fi.Name, 3);
           }
 
           /*
@@ -250,7 +251,7 @@
           if (mm.Success)
           {
             if (opts.Verbose) Console.WriteLine("         Minimal match: " + fi.FullName);
-            return new PathAndPoints(fi.Name, 1);
+            return new PathAndPoints(backupDir + "\\" + fi.Name, 1);
           }
         }
         return new PathAndPoints(null, 0);
@@ -295,6 +296,7 @@ public class RosterInfo
 
   public static string InitializeUsername(RosterInfo ri)
   {
+    // Console.WriteLine($"{ri.FullName}: {ri.Email}");
     return ri.Email.Substring(0, ri.Email.IndexOf("@"));
   }
 }
@@ -334,7 +336,7 @@ public class Options
   public string BackupDirLooseRegex = "backup";
   public string BackupDirTightRegex = "Unity Project[s]* Backup[s]*";
   public string DueDate { get; set; } = string.Empty;
-  public string NetworkHome { get; set; } = "\\\\skhs02\\stusers";
+  public string NetworkHome { get; set; } = "\\\\skhs04\\Stusers";
   public string ProjectName { get; set; } = "Prototype-1";
   public string ProjectNameTightRegex { get; set; } = "Prototype[-_ .]*1[-_ .]";
   public bool Verbose { get; set; }
