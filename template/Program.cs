@@ -122,10 +122,11 @@ public class RosterInfo
 
   public static string InitializeFirstName(RosterInfo ri)
   {
-    var beg = ri.FullName.IndexOf(",") + 2;
-    var end = ri.FullName.Length - (beg + 2);
+    var fn = ri.FullName.Trim();
+    var beg = fn.IndexOf(",") + 2;
+    var end = fn.Length - (beg + 4);
 
-    return ri.FullName.Substring(beg, end).Trim();
+    return fn.Substring(beg, end).Trim();
   }
 
   public static string InitializeLastName(RosterInfo ri)
