@@ -140,7 +140,7 @@
 
     static void ShowScore(RosterInfo ri, PathAndPoints pnp)
     {
-      Console.WriteLine($"{ri.FirstName} {ri.LastName}: {pnp.points}: {pnp.path}: {pnp.msg}");
+      Console.WriteLine($"{ri.FirstName} {ri.LastName}: {pnp.points}: {pnp.path} ({pnp.created.ToString()}): {pnp.msg}");
     }
     
     static PathAndPoints FindBackupDir(string homeDir)
@@ -217,8 +217,9 @@
 
       if (File.Exists(backupDir + "\\" + backupFileName))
       {
+        DateTime created = File.GetCreationTime(backupFileName);
         if (opts.Verbose) Console.WriteLine("         Exact match: " + backupFileName);
-        return new PathAndPoints(backupDir + "\\" + backupFileName, 4);
+        return new PathAndPoints(backupDir + "\\" + backupFileName, 4, string.Empty, created);
       }
       else
       {
@@ -236,7 +237,7 @@
           if (tm.Success)
           {
             if (opts.Verbose) Console.WriteLine("         Tight match: " + fi.FullName);
-            return new PathAndPoints(backupDir + "\\" + fi.Name, 3);
+            return new PathAndPoints(backupDir + "\\" + fi.Name, 3, "", fi.CreationTime);
           }
 
           /*
@@ -251,7 +252,7 @@
           if (mm.Success)
           {
             if (opts.Verbose) Console.WriteLine("         Minimal match: " + fi.FullName);
-            return new PathAndPoints(backupDir + "\\" + fi.Name, 1);
+            return new PathAndPoints(backupDir + "\\" + fi.Name, 1, "", fi.CreationTime);
           }
         }
         return new PathAndPoints(null, 0);
@@ -305,29 +306,30 @@ public class PathAndPoints
 {
   public string? path { get; set; } = null;
   public int points { get; set; }
-
   public string msg { get; set; } = string.Empty;
+  public DateTime created { get; set; }
 
-  public PathAndPoints(string? path, int points, string msg)
+  public PathAndPoints(string? path, int points, string msg, DateTime created)
   {
     this.path = path;
     this.points = points;
     this.msg = msg;
+    this.created = created;
+    Console.WriteLine($"Created: {this.created}");
   }
+
+  public PathAndPoints(string? path, int points, string msg)
+    : this(path, points, msg, new DateTime(0))
+  {}
 
   public PathAndPoints(string? path, int points)
-  {
-    this.path = path;
-    this.points = points;
-    this.msg = string.Empty;
-  }
+    : this(path, points, string.Empty, new DateTime(0))
+  {}
 
   public PathAndPoints()
-  {
-    this.path = null;
-    this.points = 0;
-    this.msg = string.Empty;
-  }
+    : this (null, 0, string.Empty, new DateTime(0))
+  {}
+
 }
 
 public class Options
