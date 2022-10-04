@@ -2,132 +2,130 @@
   "version": 3,
   "targets": {
     "net6.0": {
-      "System.CommandLine/2.0.0-beta4.22272.1": {
+      "CsvHelper/28.0.1": {
         "type": "package",
         "compile": {
-          "lib/net6.0/System.CommandLine.dll": {
-            "related": ".pdb;.xml"
+          "lib/net6.0/CsvHelper.dll": {
+            "related": ".xml"
           }
         },
         "runtime": {
-          "lib/net6.0/System.CommandLine.dll": {
-            "related": ".pdb;.xml"
+          "lib/net6.0/CsvHelper.dll": {
+            "related": ".xml"
           }
+        }
+      },
+      "FluentArgs/0.9.7": {
+        "type": "package",
+        "dependencies": {
+          "System.Collections.Immutable": "1.4.0"
         },
-        "resource": {
-          "lib/net6.0/cs/System.CommandLine.resources.dll": {
-            "locale": "cs"
-          },
-          "lib/net6.0/de/System.CommandLine.resources.dll": {
-            "locale": "de"
-          },
-          "lib/net6.0/es/System.CommandLine.resources.dll": {
-            "locale": "es"
-          },
-          "lib/net6.0/fr/System.CommandLine.resources.dll": {
-            "locale": "fr"
-          },
-          "lib/net6.0/it/System.CommandLine.resources.dll": {
-            "locale": "it"
-          },
-          "lib/net6.0/ja/System.CommandLine.resources.dll": {
-            "locale": "ja"
-          },
-          "lib/net6.0/ko/System.CommandLine.resources.dll": {
-            "locale": "ko"
-          },
-          "lib/net6.0/pl/System.CommandLine.resources.dll": {
-            "locale": "pl"
-          },
-          "lib/net6.0/pt-BR/System.CommandLine.resources.dll": {
-            "locale": "pt-BR"
-          },
-          "lib/net6.0/ru/System.CommandLine.resources.dll": {
-            "locale": "ru"
-          },
-          "lib/net6.0/tr/System.CommandLine.resources.dll": {
-            "locale": "tr"
-          },
-          "lib/net6.0/zh-Hans/System.CommandLine.resources.dll": {
-            "locale": "zh-Hans"
-          },
-          "lib/net6.0/zh-Hant/System.CommandLine.resources.dll": {
-            "locale": "zh-Hant"
-          }
+        "compile": {
+          "lib/netstandard2.0/FluentArgs.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/FluentArgs.dll": {}
+        }
+      },
+      "System.Collections.Immutable/1.4.0": {
+        "type": "package",
+        "compile": {
+          "ref/netcoreapp2.0/_._": {}
+        },
+        "runtime": {
+          "lib/netcoreapp2.0/_._": {}
         }
       }
     }
   },
   "libraries": {
-    "System.CommandLine/2.0.0-beta4.22272.1": {
-      "sha512": "1uqED/q2H0kKoLJ4+hI2iPSBSEdTuhfCYADeJrAqERmiGQ2NNacYKRNEQ+gFbU4glgVyK8rxI+ZOe1onEtr/Pg==",
+    "CsvHelper/28.0.1": {
+      "sha512": "T/Eid0mP/GeWV1RcxmUPSsBCtOm6wHbFII6iFydPfpIa6cd+siec0KGrLq5uabI8sH6crFi84OA1vNLkp8Lzlw==",
       "type": "package",
-      "path": "system.commandline/2.0.0-beta4.22272.1",
+      "path": "csvhelper/28.0.1",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "Icon.png",
-        "lib/net6.0/System.CommandLine.dll",
-        "lib/net6.0/System.CommandLine.pdb",
-        "lib/net6.0/System.CommandLine.xml",
-        "lib/net6.0/cs/System.CommandLine.resources.dll",
-        "lib/net6.0/de/System.CommandLine.resources.dll",
-        "lib/net6.0/es/System.CommandLine.resources.dll",
-        "lib/net6.0/fr/System.CommandLine.resources.dll",
-        "lib/net6.0/it/System.CommandLine.resources.dll",
-        "lib/net6.0/ja/System.CommandLine.resources.dll",
-        "lib/net6.0/ko/System.CommandLine.resources.dll",
-        "lib/net6.0/pl/System.CommandLine.resources.dll",
-        "lib/net6.0/pt-BR/System.CommandLine.resources.dll",
-        "lib/net6.0/ru/System.CommandLine.resources.dll",
-        "lib/net6.0/tr/System.CommandLine.resources.dll",
-        "lib/net6.0/zh-Hans/System.CommandLine.resources.dll",
-        "lib/net6.0/zh-Hant/System.CommandLine.resources.dll",
-        "lib/netstandard2.0/System.CommandLine.dll",
-        "lib/netstandard2.0/System.CommandLine.pdb",
-        "lib/netstandard2.0/System.CommandLine.xml",
-        "lib/netstandard2.0/cs/System.CommandLine.resources.dll",
-        "lib/netstandard2.0/de/System.CommandLine.resources.dll",
-        "lib/netstandard2.0/es/System.CommandLine.resources.dll",
-        "lib/netstandard2.0/fr/System.CommandLine.resources.dll",
-        "lib/netstandard2.0/it/System.CommandLine.resources.dll",
-        "lib/netstandard2.0/ja/System.CommandLine.resources.dll",
-        "lib/netstandard2.0/ko/System.CommandLine.resources.dll",
-        "lib/netstandard2.0/pl/System.CommandLine.resources.dll",
-        "lib/netstandard2.0/pt-BR/System.CommandLine.resources.dll",
-        "lib/netstandard2.0/ru/System.CommandLine.resources.dll",
-        "lib/netstandard2.0/tr/System.CommandLine.resources.dll",
-        "lib/netstandard2.0/zh-Hans/System.CommandLine.resources.dll",
-        "lib/netstandard2.0/zh-Hant/System.CommandLine.resources.dll",
-        "system.commandline.2.0.0-beta4.22272.1.nupkg.sha512",
-        "system.commandline.nuspec"
+        "csvhelper.28.0.1.nupkg.sha512",
+        "csvhelper.nuspec",
+        "lib/net45/CsvHelper.dll",
+        "lib/net45/CsvHelper.xml",
+        "lib/net47/CsvHelper.dll",
+        "lib/net47/CsvHelper.xml",
+        "lib/net5.0/CsvHelper.dll",
+        "lib/net5.0/CsvHelper.xml",
+        "lib/net6.0/CsvHelper.dll",
+        "lib/net6.0/CsvHelper.xml",
+        "lib/netstandard2.0/CsvHelper.dll",
+        "lib/netstandard2.0/CsvHelper.xml",
+        "lib/netstandard2.1/CsvHelper.dll",
+        "lib/netstandard2.1/CsvHelper.xml"
+      ]
+    },
+    "FluentArgs/0.9.7": {
+      "sha512": "8Gb6MQWhWDhbLn3K631b3MuCO3viS31NToDysn3QcMiRQowXK7vsd2a/+ngltQcga03FNV7RMhUgdgUkuDOe6Q==",
+      "type": "package",
+      "path": "fluentargs/0.9.7",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "fluentargs.0.9.7.nupkg.sha512",
+        "fluentargs.nuspec",
+        "lib/netstandard2.0/FluentArgs.dll"
+      ]
+    },
+    "System.Collections.Immutable/1.4.0": {
+      "sha512": "71hw5RUJRu5+q/geUY69gpXD8Upd12cH+F3MwpXV2zle7Bqqkrmc1JblOTuvUcgmdnUtQvBlV5e1d6RH+H2lvA==",
+      "type": "package",
+      "path": "system.collections.immutable/1.4.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/netcoreapp2.0/_._",
+        "lib/netstandard1.0/System.Collections.Immutable.dll",
+        "lib/netstandard1.0/System.Collections.Immutable.xml",
+        "lib/netstandard2.0/System.Collections.Immutable.dll",
+        "lib/netstandard2.0/System.Collections.Immutable.xml",
+        "lib/portable-net45+win8+wp8+wpa81/System.Collections.Immutable.dll",
+        "lib/portable-net45+win8+wp8+wpa81/System.Collections.Immutable.xml",
+        "ref/netcoreapp2.0/_._",
+        "system.collections.immutable.1.4.0.nupkg.sha512",
+        "system.collections.immutable.nuspec",
+        "useSharedDesignerContext.txt",
+        "version.txt"
       ]
     }
   },
   "projectFileDependencyGroups": {
     "net6.0": [
-      "System.CommandLine >= 2.0.0-beta4.22272.1"
+      "CsvHelper >= 28.0.1",
+      "FluentArgs >= 0.9.7"
     ]
   },
   "packageFolders": {
-    "/Users/urner/.nuget/packages/": {}
+    "C:\\Users\\urner\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/urner/Source/GitHub/Grading-Tools/check-backups/check-backups/check-backups.csproj",
+      "projectUniqueName": "C:\\Users\\urner\\Desktop\\GitHub\\Grading-Tools\\check-backups\\check-backups\\check-backups.csproj",
       "projectName": "check-backups",
-      "projectPath": "/Users/urner/Source/GitHub/Grading-Tools/check-backups/check-backups/check-backups.csproj",
-      "packagesPath": "/Users/urner/.nuget/packages/",
-      "outputPath": "/Users/urner/Source/GitHub/Grading-Tools/check-backups/check-backups/obj/",
+      "projectPath": "C:\\Users\\urner\\Desktop\\GitHub\\Grading-Tools\\check-backups\\check-backups\\check-backups.csproj",
+      "packagesPath": "C:\\Users\\urner\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\urner\\Desktop\\GitHub\\Grading-Tools\\check-backups\\check-backups\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/urner/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\urner\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net6.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -146,9 +144,13 @@
       "net6.0": {
         "targetAlias": "net6.0",
         "dependencies": {
-          "System.CommandLine": {
+          "CsvHelper": {
             "target": "Package",
-            "version": "[2.0.0-beta4.22272.1, )"
+            "version": "[28.0.1, )"
+          },
+          "FluentArgs": {
+            "target": "Package",
+            "version": "[0.9.7, )"
           }
         },
         "imports": [
@@ -167,7 +169,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.401/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.401\\RuntimeIdentifierGraph.json"
       }
     }
   }

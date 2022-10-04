@@ -50,10 +50,11 @@
         )
         .Parse(args);        
     }
+
     static void Process(string roster, string output, uint skip, uint name, uint email)
     {
+      if (opts.Verbose) Console.WriteLine($"Process {roster}");
       if (opts.Verbose) Console.WriteLine($"Skipping first {skip} records");
-      Console.WriteLine($"Process {roster}");
 
       var config = new CsvConfiguration(CultureInfo.InvariantCulture)
       {
@@ -114,7 +115,7 @@
       var bd = new PathAndPoints();
       var bf = new PathAndPoints();
 
-      var homeDir = $"{opts.NetworkHome}\\{user}";
+      var homeDir = $"{opts.NetworkHome}{Path.DirectorySeparatorChar}{user}";
       if (opts.Verbose) Console.WriteLine($"Check {homeDir}");
       bd = FindBackupDir(homeDir);
       if (bd.path == null)
@@ -124,16 +125,19 @@
       }
       else
       {
+        // Found a reasonable candidate for the backup directory.
         bf = FindBackupFile(bd.path);
         if (bf.path == null)
         {
+          // Didn't find a backup.
           var msg = $"No project backup found in {bd.path}";
           return new PathAndPoints(null, bd.points, msg);
         }
         else
         {
+          // Found a backup.
           var msg = string.Empty;
-          return new PathAndPoints(bf.path, 8 + bd.points + bf.points, msg);
+          return new PathAndPoints(bf.path, 8 + bd.points + bf.points, msg, bf.created);
         }
       }
     }
@@ -145,12 +149,12 @@
     
     static PathAndPoints FindBackupDir(string homeDir)
     {
-      var backupFolder = opts.BackupDir;
+      var backupDir = opts.BackupDir;
 
       // Check for requested path.
       if (Directory.Exists(homeDir))
       {
-          var path = homeDir + "\\" + backupFolder;
+          var path = homeDir + Path.DirectorySeparatorChar + backupDir;
 
           if (opts.Verbose) Console.WriteLine("        Looking for: " + path);
           if (Directory.Exists(path))
@@ -193,7 +197,9 @@
               if (mm.path != null) return new PathAndPoints(dir.FullName, 1);
 
             }
-            // Last possiblity in the root of the home directory
+            // Last possiblity in the root of the home directory -- note that we don't 
+            // return the backup that we found, we are just setting the directory to look
+            // in when FindBackupFile() is called after we return.
             var rd = FindBackupFile(homeDir, opts.ProjectName, opts.DueDate);
             if (rd.path != null) return new PathAndPoints(homeDir, 1);
 
@@ -213,13 +219,14 @@
     
     static PathAndPoints FindBackupFile(string backupDir, string project, string date)
     {
-      var backupFileName = project + "-" + date + ".unitypackage";
+      var backupFileName = project + "_" + date + ".unitypackage";
 
-      if (File.Exists(backupDir + "\\" + backupFileName))
+      if (opts.Verbose) Console.Write("Check for exact match: ");
+      if (File.Exists(backupDir + Path.DirectorySeparatorChar + backupFileName))
       {
         DateTime created = File.GetCreationTime(backupFileName);
-        if (opts.Verbose) Console.WriteLine("         Exact match: " + backupFileName);
-        return new PathAndPoints(backupDir + "\\" + backupFileName, 4, string.Empty, created);
+        if (opts.Verbose) Console.WriteLine("found: '" + backupFileName + "'");
+        return new PathAndPoints(backupDir + Path.DirectorySeparatorChar + backupFileName, 4, string.Empty, created);
       }
       else
       {
@@ -228,16 +235,32 @@
         foreach (var fi in di.EnumerateFiles())
         {
           /*
+          ** Exact match with annotation.
+          */
+          var emaRegex = project + "_" + date + "_.*"; // XXX
+
+          Match ema = Regex.Match(fi.Name, emaRegex, RegexOptions.IgnoreCase);
+          if (ema.Success)
+          {
+            if (opts.Verbose) Console.WriteLine("found (with annotation): " + fi.FullName);
+            return new PathAndPoints(backupDir + Path.DirectorySeparatorChar + fi.Name, 4, "", fi.CreationTime);
+          }
+          else
+          {
+            if (opts.Verbose) Console.WriteLine("not found");
+          }
+
+          /*
            * Tight match
            */
 
-          var regex = opts.ProjectNameTightRegex + opts.DueDate;
+          var tmRegex = opts.ProjectNameTightRegex + opts.DueDate;
 
-          Match tm = Regex.Match(fi.Name, regex, RegexOptions.IgnoreCase);
+          Match tm = Regex.Match(fi.Name, tmRegex, RegexOptions.IgnoreCase);
           if (tm.Success)
           {
             if (opts.Verbose) Console.WriteLine("         Tight match: " + fi.FullName);
-            return new PathAndPoints(backupDir + "\\" + fi.Name, 3, "", fi.CreationTime);
+            return new PathAndPoints(backupDir + Path.DirectorySeparatorChar + fi.Name, 3, "", fi.CreationTime);
           }
 
           /*
@@ -252,7 +275,7 @@
           if (mm.Success)
           {
             if (opts.Verbose) Console.WriteLine("         Minimal match: " + fi.FullName);
-            return new PathAndPoints(backupDir + "\\" + fi.Name, 1, "", fi.CreationTime);
+            return new PathAndPoints(backupDir + Path.DirectorySeparatorChar + fi.Name, 1, "", fi.CreationTime);
           }
         }
         return new PathAndPoints(null, 0);
@@ -315,7 +338,7 @@ public class PathAndPoints
     this.points = points;
     this.msg = msg;
     this.created = created;
-    Console.WriteLine($"Created: {this.created}");
+    //Console.WriteLine($"'{this.path}' Points: {this.points} Created: {this.created}");
   }
 
   public PathAndPoints(string? path, int points, string msg)
@@ -338,7 +361,7 @@ public class Options
   public string BackupDirLooseRegex = "backup";
   public string BackupDirTightRegex = "Unity Project[s]* Backup[s]*";
   public string DueDate { get; set; } = string.Empty;
-  public string NetworkHome { get; set; } = "\\\\skhs04\\Stusers";
+  public string NetworkHome { get; set; } = $"{Path.DirectorySeparatorChar}{Path.DirectorySeparatorChar}skhs04{Path.DirectorySeparatorChar}Stusers";
   public string ProjectName { get; set; } = "Prototype-1";
   public string ProjectNameTightRegex { get; set; } = "Prototype[-_ .]*1[-_ .]";
   public bool Verbose { get; set; }

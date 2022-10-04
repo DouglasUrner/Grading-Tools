@@ -1,25 +1,27 @@
 {
   "format": 1,
   "restore": {
-    "/Users/urner/Source/GitHub/Grading-Tools/check-backups/check-backups/check-backups.csproj": {}
+    "C:\\Users\\urner\\Desktop\\GitHub\\Grading-Tools\\check-backups\\check-backups\\check-backups.csproj": {}
   },
   "projects": {
-    "/Users/urner/Source/GitHub/Grading-Tools/check-backups/check-backups/check-backups.csproj": {
+    "C:\\Users\\urner\\Desktop\\GitHub\\Grading-Tools\\check-backups\\check-backups\\check-backups.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/urner/Source/GitHub/Grading-Tools/check-backups/check-backups/check-backups.csproj",
+        "projectUniqueName": "C:\\Users\\urner\\Desktop\\GitHub\\Grading-Tools\\check-backups\\check-backups\\check-backups.csproj",
         "projectName": "check-backups",
-        "projectPath": "/Users/urner/Source/GitHub/Grading-Tools/check-backups/check-backups/check-backups.csproj",
-        "packagesPath": "/Users/urner/.nuget/packages/",
-        "outputPath": "/Users/urner/Source/GitHub/Grading-Tools/check-backups/check-backups/obj/",
+        "projectPath": "C:\\Users\\urner\\Desktop\\GitHub\\Grading-Tools\\check-backups\\check-backups\\check-backups.csproj",
+        "packagesPath": "C:\\Users\\urner\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\urner\\Desktop\\GitHub\\Grading-Tools\\check-backups\\check-backups\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/urner/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\urner\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -38,9 +40,13 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
-            "System.CommandLine": {
+            "CsvHelper": {
               "target": "Package",
-              "version": "[2.0.0-beta4.22272.1, )"
+              "version": "[28.0.1, )"
+            },
+            "FluentArgs": {
+              "target": "Package",
+              "version": "[0.9.7, )"
             }
           },
           "imports": [
@@ -59,7 +65,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.401/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.401\\RuntimeIdentifierGraph.json"
         }
       }
     }
