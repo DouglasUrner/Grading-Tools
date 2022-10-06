@@ -18,6 +18,9 @@
     {
       FluentArgsBuilder.New()
         .DefaultConfigs()
+        .Parameter("--root")
+          .WithDescription("Root directory for student homes.")
+          .IsOptionalWithDefault(opts.Root)
         .Parameter("--roster")
           .WithDescription("CSV file holding roster information.")
           .IsRequired()
@@ -40,10 +43,11 @@
           .IsOptionalWithDefault(2)
         .Flag("--verbose", "-v")
           .WithDescription("Provide detailed process trace.")
-        .Call(verbose => email => name => skip => due => output => roster =>
+        .Call(verbose => email => name => skip => due => output => roster => root =>
           {
             opts.Verbose = verbose;
             opts.DueDate = due;
+            opts.Root = root;
 
             Process(roster, output, skip, name, email);
           }
@@ -66,7 +70,7 @@
         using (var sr = new StreamReader(roster))
         {
           // Skip the file header.
-          while ((sr.ReadLine()) != null)
+          while (skip > 0 && (sr.ReadLine()) != null)
           {
             if (--skip > 1)
             {
@@ -84,6 +88,8 @@
             {
               var ri = csv.GetRecord<RosterInfo>();
               PathAndPoints pnp;
+
+              if (opts.Verbose) Console.WriteLine($"Processing {ri}");
 
               /*
               ** Split FullName into first and last names.
@@ -115,7 +121,7 @@
       var bd = new PathAndPoints();
       var bf = new PathAndPoints();
 
-      var homeDir = $"{opts.NetworkHome}{Path.DirectorySeparatorChar}{user}";
+      var homeDir = $"{opts.Root}{Path.DirectorySeparatorChar}{user}";
       if (opts.Verbose) Console.WriteLine($"Check {homeDir}");
       bd = FindBackupDir(homeDir);
       if (bd.path == null)
@@ -220,69 +226,89 @@
     static PathAndPoints FindBackupFile(string backupDir, string project, string date)
     {
       // Regex for properly constructed backup file name:
-      // ^.*_[0-9]{4}-[0-9]{2}-[0-9]{2}(?:_.*)?.unitypackage$
+      string regex = "^.*_[0-9]{4}-[0-9]{2}-[0-9]{2}(?:_.*)?.unitypackage$";
 
-      var backupFileName = project + "_" + date + ".unitypackage";
+      DirectoryInfo di = new DirectoryInfo(backupDir);
 
-      if (opts.Verbose) Console.Write("Check for exact match: ");
-      if (File.Exists(backupDir + Path.DirectorySeparatorChar + backupFileName))
+      foreach (var fi in di.EnumerateFiles())
       {
-        DateTime created = File.GetCreationTime(backupFileName);
-        if (opts.Verbose) Console.WriteLine("found: '" + backupFileName + "'");
-        return new PathAndPoints(backupDir + Path.DirectorySeparatorChar + backupFileName, 4, string.Empty, created);
-      }
-      else
-      {
-        DirectoryInfo di = new DirectoryInfo(backupDir);
-
-        foreach (var fi in di.EnumerateFiles())
+        // Check for backups with well formed names.
+        Match m = Regex.Match(fi.Name, regex, RegexOptions.IgnoreCase);
+        if (m.Success)
         {
-          /*
-          ** Exact match with annotation.
-          */
-          var emaRegex = project + "_" + date + "_.*"; // XXX
-
-          Match ema = Regex.Match(fi.Name, emaRegex, RegexOptions.IgnoreCase);
-          if (ema.Success)
-          {
-            if (opts.Verbose) Console.WriteLine("found (with annotation): " + fi.FullName);
-            return new PathAndPoints(backupDir + Path.DirectorySeparatorChar + fi.Name, 4, "", fi.CreationTime);
-          }
-          else
-          {
-            if (opts.Verbose) Console.WriteLine("not found");
-          }
-
-          /*
-           * Tight match
-           */
-
-          var tmRegex = opts.ProjectNameTightRegex + opts.DueDate;
-
-          Match tm = Regex.Match(fi.Name, tmRegex, RegexOptions.IgnoreCase);
-          if (tm.Success)
-          {
-            if (opts.Verbose) Console.WriteLine("         Tight match: " + fi.FullName);
-            return new PathAndPoints(backupDir + Path.DirectorySeparatorChar + fi.Name, 3, "", fi.CreationTime);
-          }
-
-          /*
-           * Loose match
-           */
-
-          /*
-           * Minimal match
-           */
-
-          Match mm = Regex.Match(fi.Name, ".unitypackage");
-          if (mm.Success)
-          {
-            if (opts.Verbose) Console.WriteLine("         Minimal match: " + fi.FullName);
-            return new PathAndPoints(backupDir + Path.DirectorySeparatorChar + fi.Name, 1, "", fi.CreationTime);
-          }
+          Console.WriteLine($"{fi.FullName}: exact: ({fi.CreationTime})");
         }
-        return new PathAndPoints(null, 0);
+
+        // Check for any .unityproject file.
+        m = Regex.Match(fi.Name, "\\.unitypackage$", RegexOptions.IgnoreCase);
+        if (m.Success)
+        {
+          Console.WriteLine($"{fi.FullName}: possible backup: ({fi.CreationTime})");
+        }
       }
+      return new PathAndPoints(null, 0);
+
+      // var backupFileName = project + "_" + date + ".unitypackage";
+
+      // if (opts.Verbose) Console.Write("Check for exact match: ");
+      // if (File.Exists(backupDir + Path.DirectorySeparatorChar + backupFileName))
+      // {
+      //   DateTime created = File.GetCreationTime(backupFileName);
+      //   if (opts.Verbose) Console.WriteLine("found: '" + backupFileName + "'");
+      //   return new PathAndPoints(backupDir + Path.DirectorySeparatorChar + backupFileName, 4, string.Empty, created);
+      // }
+      // else
+      // {
+      //   DirectoryInfo di = new DirectoryInfo(backupDir);
+
+      //   foreach (var fi in di.EnumerateFiles())
+      //   {
+      //     /*
+      //     ** Exact match with annotation.
+      //     */
+      //     var emaRegex = project + "_" + date + "_.*"; // XXX
+
+      //     Match ema = Regex.Match(fi.Name, emaRegex, RegexOptions.IgnoreCase);
+      //     if (ema.Success)
+      //     {
+      //       if (opts.Verbose) Console.WriteLine("found (with annotation): " + fi.FullName);
+      //       return new PathAndPoints(backupDir + Path.DirectorySeparatorChar + fi.Name, 4, "", fi.CreationTime);
+      //     }
+      //     else
+      //     {
+      //       if (opts.Verbose) Console.WriteLine("not found");
+      //     }
+
+      //     /*
+      //      * Tight match
+      //      */
+
+      //     var tmRegex = opts.ProjectNameTightRegex + opts.DueDate;
+
+      //     Match tm = Regex.Match(fi.Name, tmRegex, RegexOptions.IgnoreCase);
+      //     if (tm.Success)
+      //     {
+      //       if (opts.Verbose) Console.WriteLine("         Tight match: " + fi.FullName);
+      //       return new PathAndPoints(backupDir + Path.DirectorySeparatorChar + fi.Name, 3, "", fi.CreationTime);
+      //     }
+
+      //     /*
+      //      * Loose match
+      //      */
+
+      //     /*
+      //      * Minimal match
+      //      */
+
+      //     Match mm = Regex.Match(fi.Name, ".unitypackage");
+      //     if (mm.Success)
+      //     {
+      //       if (opts.Verbose) Console.WriteLine("         Minimal match: " + fi.FullName);
+      //       return new PathAndPoints(backupDir + Path.DirectorySeparatorChar + fi.Name, 1, "", fi.CreationTime);
+      //     }
+      //   }
+      //   return new PathAndPoints(null, 0);
+      //}
     }
   }
 }
@@ -295,7 +321,7 @@ public class RosterInfo
   public string LastName { get; set; } = string.Empty;
   public string FirstName { get; set; } = string.Empty;
   public string Username { get; set; } = string.Empty;
-  public string NetworkHome { get; set; } = string.Empty;
+  public string Root { get; set; } = string.Empty;
   public string LocalHome { get; set; } = string.Empty;
 
   public static string InitializeFirstName(RosterInfo ri)
@@ -364,7 +390,7 @@ public class Options
   public string BackupDirLooseRegex = "backup";
   public string BackupDirTightRegex = "Unity Project[s]* Backup[s]*";
   public string DueDate { get; set; } = string.Empty;
-  public string NetworkHome { get; set; } = $"{Path.DirectorySeparatorChar}{Path.DirectorySeparatorChar}skhs04{Path.DirectorySeparatorChar}Stusers";
+  public string Root { get; set; } = $"{Path.DirectorySeparatorChar}{Path.DirectorySeparatorChar}skhs04{Path.DirectorySeparatorChar}Stusers";
   public string ProjectName { get; set; } = "Prototype-1";
   public string ProjectNameTightRegex { get; set; } = "Prototype[-_ .]*1[-_ .]";
   public bool Verbose { get; set; }
