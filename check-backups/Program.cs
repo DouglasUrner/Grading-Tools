@@ -65,11 +65,11 @@
         HasHeaderRecord = false,
       };
 
-      try // Open roster and skip header.
+      try // Open roster and skip class information.
       {
         using (var sr = new StreamReader(roster))
         {
-          // Skip the file header.
+          // Skip the file skit class information.
           while (skip > 0 && (sr.ReadLine()) != null)
           {
             if (--skip > 1)
@@ -150,7 +150,14 @@
 
     static void ShowScore(RosterInfo ri, PathAndPoints pnp)
     {
-      Console.WriteLine($"{ri.FirstName} {ri.LastName}: {pnp.points}: {pnp.path} ({pnp.created.ToString()}): {pnp.msg}");
+      if (pnp.path != null)
+      {
+        Console.WriteLine($"{ri.FirstName} {ri.LastName}: {pnp.points}: {pnp.path} ({pnp.created.ToString()}): {pnp.msg}");
+      }
+      else
+      {
+        Console.WriteLine($"{ri.FirstName} {ri.LastName}: {pnp.points}: {pnp.msg}");
+      }
     }
     
     static PathAndPoints FindBackupDir(string homeDir)
@@ -225,28 +232,48 @@
     
     static PathAndPoints FindBackupFile(string backupDir, string project, string date)
     {
+      int points = 0;
+      string? path = null;
+
+      // Regex for an exact match:
+      string exactRegex = $"{opts.ProjectName}-2023-02-09.unitypackage$";
       // Regex for properly constructed backup file name:
-      string regex = "^.*_[0-9]{4}-[0-9]{2}-[0-9]{2}(?:_.*)?.unitypackage$";
+      string backupRegex = "^.*_[0-9]{4}-[0-9]{2}-[0-9]{2}(?:_.*)?.unitypackage$";
 
       DirectoryInfo di = new DirectoryInfo(backupDir);
 
       foreach (var fi in di.EnumerateFiles())
       {
-        // Check for backups with well formed names.
-        Match m = Regex.Match(fi.Name, regex, RegexOptions.IgnoreCase);
+        Match m = Regex.Match(fi.Name, exactRegex);
         if (m.Success)
         {
-          Console.WriteLine($"{fi.FullName}: exact: ({fi.CreationTime})");
+          if (opts.Verbose) Console.WriteLine($"{fi.FullName}: exact: ({fi.CreationTime})");
+          path = fi.FullName;
+          points = 4;
+          return new PathAndPoints(path, points);
+          break;
+        }
+        // Check for backups with well formed names.
+        m = Regex.Match(fi.Name, backupRegex, RegexOptions.IgnoreCase);
+        if (m.Success)
+        {
+          path = fi.FullName;
+          points = 2;
+          if (opts.Verbose) Console.WriteLine($"{fi.FullName}: correct pattern: ({fi.CreationTime})");
+          break;
         }
 
         // Check for any .unityproject file.
         m = Regex.Match(fi.Name, "\\.unitypackage$", RegexOptions.IgnoreCase);
         if (m.Success)
         {
-          Console.WriteLine($"{fi.FullName}: possible backup: ({fi.CreationTime})");
+          path = fi.FullName;
+          points = 1;
+          if (opts.Verbose) Console.WriteLine($"{fi.FullName}: possible backup: ({fi.CreationTime})");
+          break;
         }
       }
-      return new PathAndPoints(null, 0);
+      return new PathAndPoints(path, points);
 
       // var backupFileName = project + "_" + date + ".unitypackage";
 
@@ -388,7 +415,7 @@ public class Options
 {
   public string BackupDir { get; set; } = "Unity Project Backups";
   public string BackupDirLooseRegex = "backup";
-  public string BackupDirTightRegex = "Unity Project[s]* Backup[s]*";
+  public string BackupDirTightRegex = "Unity Project Backups";
   public string DueDate { get; set; } = string.Empty;
   public string Root { get; set; } = $"{Path.DirectorySeparatorChar}{Path.DirectorySeparatorChar}skhs04{Path.DirectorySeparatorChar}Stusers";
   public string ProjectName { get; set; } = "Prototype-1";
