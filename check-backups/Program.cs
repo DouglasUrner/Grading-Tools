@@ -104,7 +104,8 @@
 
               Console.WriteLine($"{ri.FirstName} {ri.LastName} ({ri.Username}):");
 
-              var bd = FindBackupDir(ri.Username);
+              var homeDir = $"{opts.Root}{Path.DirectorySeparatorChar}{ri.Username}";
+              var bd = FindBackupDir(homeDir);
               if (bd != null)
               {
                 Console.WriteLine($"\tBackup Directory: {bd.ToString()}");
@@ -232,7 +233,7 @@
       }
       else
       {
-        return new PathAndPoints(null, 0, "Network home directory (U:) not found.");
+        return new PathAndPoints(null, 0, $"Network home directory '{homeDir}' not found.");
       }
     }
 
