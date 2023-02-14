@@ -87,7 +87,7 @@
             while (csv.Read())
             {
               var ri = csv.GetRecord<RosterInfo>();
-              PathAndPoints pnp;
+              // PathAndPoints pnp;
 
               if (opts.Verbose) Console.WriteLine($"Processing {ri}");
 
@@ -102,8 +102,19 @@
               */
               ri.Username = RosterInfo.InitializeUsername(ri);
 
-              pnp = CheckBackup(ri.Username);
-              ShowScore(ri, pnp);
+              Console.WriteLine($"{ri.FirstName} {ri.LastName} ({ri.Username}):");
+
+              var bd = FindBackupDir(ri.Username);
+              if (bd != null)
+              {
+                Console.WriteLine($"\tBackup Directory: {bd.ToString()}");
+                var bf = FindBackupFile(bd.path, opts.ProjectName, opts.DueDate);
+                Console.WriteLine($"\tExported Assets:  {bf.ToString()}");
+                Console.WriteLine($"\tTotal Points:     {bd.points + bf.points}");
+              }
+
+              //pnp = CheckBackup(ri.Username);
+              //ShowScore(ri, pnp);
             }
           }
         }
@@ -230,13 +241,15 @@
       return FindBackupFile(backupDir, opts.ProjectName, opts.DueDate);
     }
     
-    static PathAndPoints FindBackupFile(string backupDir, string project, string date)
+    static PathAndPoints FindBackupFile(string? backupDir, string project, string date)
     {
       int points = 0;
       string? path = null;
 
+      if (backupDir == null) { return new PathAndPoints(null, 0, "No backup directory to search"); }
+
       // Regex for an exact match:
-      string exactRegex = $"{opts.ProjectName}-2023-02-09.unitypackage$";
+      string exactRegex = $"{opts.ProjectName}-2023-02-09.unitypackage$"; // XXX!!!
       // Regex for properly constructed backup file name:
       string backupRegex = "^.*_[0-9]{4}-[0-9]{2}-[0-9]{2}(?:_.*)?.unitypackage$";
 
@@ -251,7 +264,6 @@
           path = fi.FullName;
           points = 4;
           return new PathAndPoints(path, points);
-          break;
         }
         // Check for backups with well formed names.
         m = Regex.Match(fi.Name, backupRegex, RegexOptions.IgnoreCase);
@@ -409,6 +421,16 @@ public class PathAndPoints
     : this (null, 0, string.Empty, new DateTime(0))
   {}
 
+  public override string ToString()
+  {
+    string str = $"{this.points}";
+
+    if (this.path == null) { str += $": {this.msg}"; }
+    else if (this.msg != null) { str += $": {this.path}: {this.msg}"; }
+    else { str += $": {this.path}"; }
+
+    return str;
+  }
 }
 
 public class Options
