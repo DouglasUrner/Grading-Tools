@@ -116,38 +116,6 @@
       }
     }
 
-    static PathAndPoints CheckBackup(string user)
-    {
-      var bd = new PathAndPoints();
-      var bf = new PathAndPoints();
-
-      var homeDir = $"{opts.Root}{Path.DirectorySeparatorChar}{user}";
-      if (opts.Verbose) Console.WriteLine($"Check {homeDir}");
-      bd = FindBackupDir(homeDir);
-      if (bd.path == null)
-      {
-        bd.msg = $"No backup or backup directory found in {homeDir}";
-        return bd;
-      }
-      else
-      {
-        // Found a reasonable candidate for the backup directory.
-        bf = FindBackupFile(bd.path);
-        if (bf.path == null)
-        {
-          // Didn't find a backup.
-          var msg = $"No project backup found in {bd.path}";
-          return new PathAndPoints(null, bd.points, msg);
-        }
-        else
-        {
-          // Found a backup.
-          var msg = string.Empty;
-          return new PathAndPoints(bf.path, 8 + bd.points + bf.points, msg, bf.created);
-        }
-      }
-    }
-
     static void ShowScore(RosterInfo ri, PathAndPoints dir, PathAndPoints file)
     {
       Console.WriteLine($"{ri.FirstName} {ri.LastName} ({ri.Username}):");
@@ -223,11 +191,6 @@
       {
         return new PathAndPoints(null, 0, $"Network home directory '{homeDir}' not found.");
       }
-    }
-
-    static PathAndPoints FindBackupFile(string backupDir)
-    {
-      return FindBackupFile(backupDir, opts.ProjectName, opts.DueDate);
     }
     
     static PathAndPoints FindBackupFile(string? backupDir, string project, string date)
