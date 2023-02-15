@@ -118,12 +118,12 @@
 
     static void ShowScore(RosterInfo ri, PathAndPoints dir, PathAndPoints file)
     {
-      Console.WriteLine($"{ri.FirstName} {ri.LastName} ({ri.Username}):");
+      Console.WriteLine($"{RosterInfo.DisplayName(ri)}:");
 
       if (dir != null)
       {
         Console.WriteLine($"\tBackup Directory: {dir.ToString()}");
-        Console.WriteLine($"\tExported Assets:  {file.ToString()}");
+        Console.WriteLine($"\tExported Assets:  {file.ToString(true)}");
         Console.WriteLine($"\tTotal Points:     {dir.points + file.points}");
       }
     }
@@ -340,8 +340,12 @@ public class RosterInfo
 
   public static string InitializeUsername(RosterInfo ri)
   {
-    // Console.WriteLine($"{ri.FullName}: {ri.Email}");
     return ri.Email.Substring(0, ri.Email.IndexOf("@"));
+  }
+
+  public static string DisplayName(RosterInfo ri)
+  {
+    return $"{ri.FirstName} {ri.LastName} ({ri.Username})";
   }
 }
 
@@ -357,7 +361,7 @@ public class PathAndPoints
     this.path = path;
     this.points = points;
     this.msg = msg;
-    this.created = created;
+    this.created = path != null ? created : new DateTime(0);
     //Console.WriteLine($"'{this.path}' Points: {this.points} Created: {this.created}");
   }
 
@@ -373,13 +377,16 @@ public class PathAndPoints
     : this (null, 0, string.Empty, new DateTime(0))
   {}
 
-  public override string ToString()
+  public string ToString(bool showCreated = false)
   {
     string str = $"{this.points}";
 
     if (this.path == null) { str += $": {this.msg}"; }
-    else if (this.msg != null) { str += $": {this.path}: {this.msg}"; }
+    else if (this.msg != null) { str += $": {this.msg}: {this.path}"; }
     else { str += $": {this.path}"; }
+
+    // Optionally add created time (if path is not null).
+    if (this.path != null && showCreated) { str += $" ({this.created})"; }
 
     return str;
   }
@@ -391,7 +398,8 @@ public class Options
   public string BackupDirLooseRegex = "backup";
   public string BackupDirTightRegex = "Unity Project Backups";
   public string DueDate { get; set; } = string.Empty;
-  public string Root { get; set; } = $"{Path.DirectorySeparatorChar}{Path.DirectorySeparatorChar}skhs04{Path.DirectorySeparatorChar}Stusers";
+  public string Root { get; set; } =
+    $"{Path.DirectorySeparatorChar}{Path.DirectorySeparatorChar}skhs04{Path.DirectorySeparatorChar}Stusers";
   public string ProjectName { get; set; } = "Prototype-1";
   public string ProjectNameTightRegex { get; set; } = "Prototype[-_ .]*1[-_ .]";
   public bool Verbose { get; set; }
