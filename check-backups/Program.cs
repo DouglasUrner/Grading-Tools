@@ -87,9 +87,6 @@
             while (csv.Read())
             {
               var ri = csv.GetRecord<RosterInfo>();
-              // PathAndPoints pnp;
-
-              if (opts.Verbose) Console.WriteLine($"Processing {ri}");
 
               /*
               ** Split FullName into first and last names.
@@ -102,20 +99,11 @@
               */
               ri.Username = RosterInfo.InitializeUsername(ri);
 
-              Console.WriteLine($"{ri.FirstName} {ri.LastName} ({ri.Username}):");
-
               var homeDir = $"{opts.Root}{Path.DirectorySeparatorChar}{ri.Username}";
               var bd = FindBackupDir(homeDir);
-              if (bd != null)
-              {
-                Console.WriteLine($"\tBackup Directory: {bd.ToString()}");
-                var bf = FindBackupFile(bd.path, opts.ProjectName, opts.DueDate);
-                Console.WriteLine($"\tExported Assets:  {bf.ToString()}");
-                Console.WriteLine($"\tTotal Points:     {bd.points + bf.points}");
-              }
+              var bf = FindBackupFile(bd.path, opts.ProjectName, opts.DueDate);
 
-              //pnp = CheckBackup(ri.Username);
-              //ShowScore(ri, pnp);
+              ShowScore(ri, bd, bf);
             }
           }
         }
@@ -160,15 +148,15 @@
       }
     }
 
-    static void ShowScore(RosterInfo ri, PathAndPoints pnp)
+    static void ShowScore(RosterInfo ri, PathAndPoints dir, PathAndPoints file)
     {
-      if (pnp.path != null)
+      Console.WriteLine($"{ri.FirstName} {ri.LastName} ({ri.Username}):");
+
+      if (dir != null)
       {
-        Console.WriteLine($"{ri.FirstName} {ri.LastName}: {pnp.points}: {pnp.path} ({pnp.created.ToString()}): {pnp.msg}");
-      }
-      else
-      {
-        Console.WriteLine($"{ri.FirstName} {ri.LastName}: {pnp.points}: {pnp.msg}");
+        Console.WriteLine($"\tBackup Directory: {dir.ToString()}");
+        Console.WriteLine($"\tExported Assets:  {file.ToString()}");
+        Console.WriteLine($"\tTotal Points:     {dir.points + file.points}");
       }
     }
     
