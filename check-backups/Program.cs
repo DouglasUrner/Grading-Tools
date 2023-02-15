@@ -142,7 +142,7 @@
           {
             // Exact match.
             if (opts.Verbose) Console.WriteLine("    Found exact match: '" + path + "'");
-            return new PathAndPoints(path, 4);
+            return new PathAndPoints(path, 4, "exact");
           }
           else
           {
@@ -159,7 +159,7 @@
               if (tm.Success)
               {
                 if (opts.Verbose) Console.WriteLine(": tight match");
-                return new PathAndPoints(dir.FullName, 3);
+                return new PathAndPoints(dir.FullName, 3, "tight match");
               }
 
               // Loose match (2 points).
@@ -167,7 +167,7 @@
               if (lm.Success)
               {
                 if (opts.Verbose) Console.WriteLine(": loose match");
-                return new PathAndPoints(dir.FullName, 2);
+                return new PathAndPoints(dir.FullName, 2, "loose match");
               }
 
               // Minimal match -- perhaps there is a .unitypackage file in this directory. If there
@@ -175,7 +175,7 @@
               // file name points.
               if (opts.Verbose) Console.WriteLine(": checking for minimal match");
               var mm = FindBackupFile(dir.FullName, opts.ProjectName, opts.DueDate);
-              if (mm.path != null) return new PathAndPoints(dir.FullName, 1);
+              if (mm.path != null) return new PathAndPoints(dir.FullName, 1, "minimal match");
 
             }
             // Last possiblity in the root of the home directory -- note that we don't 
@@ -184,7 +184,7 @@
             var rd = FindBackupFile(homeDir, opts.ProjectName, opts.DueDate);
             if (rd.path != null) return new PathAndPoints(homeDir, 1);
 
-            return new PathAndPoints(null, 0);
+            return new PathAndPoints(null, 0, "backup directory not found");
         }
       }
       else
@@ -206,16 +206,21 @@
       string backupRegex = "^.*_[0-9]{4}-[0-9]{2}-[0-9]{2}(?:_.*)?.unitypackage$";
 
       DirectoryInfo di = new DirectoryInfo(backupDir);
+      DateTime created = new DateTime(0);
+      string msg = string.Empty;
 
       foreach (var fi in di.EnumerateFiles())
       {
         Match m = Regex.Match(fi.Name, exactRegex);
         if (m.Success)
         {
-          if (opts.Verbose) Console.WriteLine($"{fi.FullName}: exact: ({fi.CreationTime})");
           path = fi.FullName;
           points = 4;
-          return new PathAndPoints(path, points);
+          msg = "exact match";
+          created = fi.CreationTime;
+          if (opts.Verbose) Console.WriteLine($"{path}: exact: ({created})");
+          break;
+          //return new PathAndPoints(path, points, "exact match", fi.CreationTime);
         }
         // Check for backups with well formed names.
         m = Regex.Match(fi.Name, backupRegex, RegexOptions.IgnoreCase);
@@ -223,6 +228,8 @@
         {
           path = fi.FullName;
           points = 2;
+          msg = "matched backupRegex";
+          created = fi.CreationTime;
           if (opts.Verbose) Console.WriteLine($"{fi.FullName}: correct pattern: ({fi.CreationTime})");
           break;
         }
@@ -233,11 +240,13 @@
         {
           path = fi.FullName;
           points = 1;
+          msg = "found a .unitypackage";
+          created = fi.CreationTime;
           if (opts.Verbose) Console.WriteLine($"{fi.FullName}: possible backup: ({fi.CreationTime})");
           break;
         }
       }
-      return new PathAndPoints(path, points);
+      return new PathAndPoints(path, points, msg, created);
 
       // var backupFileName = project + "_" + date + ".unitypackage";
 
@@ -361,8 +370,7 @@ public class PathAndPoints
     this.path = path;
     this.points = points;
     this.msg = msg;
-    this.created = path != null ? created : new DateTime(0);
-    //Console.WriteLine($"'{this.path}' Points: {this.points} Created: {this.created}");
+    this.created = (path != null) ? created : new DateTime(0);
   }
 
   public PathAndPoints(string? path, int points, string msg)
@@ -374,16 +382,15 @@ public class PathAndPoints
   {}
 
   public PathAndPoints()
-    : this (null, 0, string.Empty, new DateTime(0))
+    : this (string.Empty, 0, string.Empty, new DateTime(0))
   {}
 
   public string ToString(bool showCreated = false)
   {
+    // points[: msg][: path][showCreated ? (created)]
     string str = $"{this.points}";
-
-    if (this.path == null) { str += $": {this.msg}"; }
-    else if (this.msg != null) { str += $": {this.msg}: {this.path}"; }
-    else { str += $": {this.path}"; }
+    if (this.msg != null && this.msg != string.Empty) { str += $": {this.msg}"; }
+    if (this.path != null && this.path != string.Empty) { str += $": {this.path}"; }
 
     // Optionally add created time (if path is not null).
     if (this.path != null && showCreated) { str += $" ({this.created})"; }
@@ -396,7 +403,7 @@ public class Options
 {
   public string BackupDir { get; set; } = "Unity Project Backups";
   public string BackupDirLooseRegex = "backup";
-  public string BackupDirTightRegex = "Unity Project Backups";
+  public string BackupDirTightRegex = "[Uu]nity [Pp]roject [Bb]ackups";
   public string DueDate { get; set; } = string.Empty;
   public string Root { get; set; } =
     $"{Path.DirectorySeparatorChar}{Path.DirectorySeparatorChar}skhs04{Path.DirectorySeparatorChar}Stusers";
