@@ -1,14 +1,14 @@
-﻿namespace Check_Backups
+﻿using System;
+using System.Globalization;
+using System.IO;
+using System.Text.RegularExpressions;
+
+using CsvHelper;
+using CsvHelper.Configuration;
+using FluentArgs;
+
+namespace Check_Backups
 {
-  using System;
-  using System.Globalization;
-  using System.IO;
-  using System.Text.RegularExpressions;
-
-  using CsvHelper;
-  using CsvHelper.Configuration;
-  using FluentArgs;
-
   public class Program
   {
     // Command line options
@@ -207,7 +207,10 @@
 
       DirectoryInfo di = new DirectoryInfo(backupDir);
       DateTime created = new DateTime(0);
+      string assigned = "2023-02-06";
+      string due = "2023-02-09";
       string msg = string.Empty;
+      Created fileCreated;
 
       foreach (var fi in di.EnumerateFiles())
       {
@@ -215,22 +218,36 @@
         if (m.Success)
         {
           path = fi.FullName;
-          points = 4;
-          msg = "exact match";
           created = fi.CreationTime;
-          if (opts.Verbose) Console.WriteLine($"{path}: exact: ({created})");
+          if ((fileCreated = CheckFileDate(fi, assigned, due)) == Created.InRange)
+          {
+            points = 4;
+            msg = "exact match";
+          }
+          else
+          {
+            points = 0;
+            msg += " (created " + (fileCreated == Created.Early ?  "before assigned)" : "after deadline");
+          }
           break;
-          //return new PathAndPoints(path, points, "exact match", fi.CreationTime);
         }
+
         // Check for backups with well formed names.
         m = Regex.Match(fi.Name, backupRegex, RegexOptions.IgnoreCase);
         if (m.Success)
         {
           path = fi.FullName;
-          points = 2;
-          msg = "matched backupRegex";
           created = fi.CreationTime;
-          if (opts.Verbose) Console.WriteLine($"{fi.FullName}: correct pattern: ({fi.CreationTime})");
+          if ((fileCreated = CheckFileDate(fi, assigned, due)) == Created.InRange)
+          {
+            points = 2;
+            msg = "matched backupRegex";
+          }
+          else
+          {
+            points = 0;
+            msg += " (created " + (fileCreated == Created.Early ?  "before assigned)" : "after deadline");
+          }
           break;
         }
 
@@ -239,76 +256,43 @@
         if (m.Success)
         {
           path = fi.FullName;
-          points = 1;
-          msg = "found a .unitypackage";
-          created = fi.CreationTime;
-          if (opts.Verbose) Console.WriteLine($"{fi.FullName}: possible backup: ({fi.CreationTime})");
+          if ((fileCreated = CheckFileDate(fi, assigned, due)) == Created.InRange)
+          {
+            points = 1;
+            msg = "found a .unitypackage";
+          }
+          else
+          {
+            points = 0;
+            msg += " (created " + (fileCreated == Created.Early ?  "before assigned)" : "after deadline");
+          }
           break;
         }
       }
       return new PathAndPoints(path, points, msg, created);
+    }
 
-      // var backupFileName = project + "_" + date + ".unitypackage";
+    enum Created
+    {
+      Early,    // Created before assigned.
+      InRange,  // Created after assigned & before deadline.
+      Late     // Created after deadline.
+    }
 
-      // if (opts.Verbose) Console.Write("Check for exact match: ");
-      // if (File.Exists(backupDir + Path.DirectorySeparatorChar + backupFileName))
-      // {
-      //   DateTime created = File.GetCreationTime(backupFileName);
-      //   if (opts.Verbose) Console.WriteLine("found: '" + backupFileName + "'");
-      //   return new PathAndPoints(backupDir + Path.DirectorySeparatorChar + backupFileName, 4, string.Empty, created);
-      // }
-      // else
-      // {
-      //   DirectoryInfo di = new DirectoryInfo(backupDir);
+    static Created CheckFileDate(FileInfo fi, string earlyStr, string lateStr)
+    {
+      Created rv;
 
-      //   foreach (var fi in di.EnumerateFiles())
-      //   {
-      //     /*
-      //     ** Exact match with annotation.
-      //     */
-      //     var emaRegex = project + "_" + date + "_.*"; // XXX
+      var early = DateTime.Parse(earlyStr, System.Globalization.CultureInfo.InvariantCulture);
+      var late = DateTime.Parse(lateStr, System.Globalization.CultureInfo.InvariantCulture);
 
-      //     Match ema = Regex.Match(fi.Name, emaRegex, RegexOptions.IgnoreCase);
-      //     if (ema.Success)
-      //     {
-      //       if (opts.Verbose) Console.WriteLine("found (with annotation): " + fi.FullName);
-      //       return new PathAndPoints(backupDir + Path.DirectorySeparatorChar + fi.Name, 4, "", fi.CreationTime);
-      //     }
-      //     else
-      //     {
-      //       if (opts.Verbose) Console.WriteLine("not found");
-      //     }
+      if (fi.CreationTime <= early) rv = Created.Early;
+      else if (fi.CreationTime >= late) rv = Created.Late;
+      else rv = Created.InRange;
 
-      //     /*
-      //      * Tight match
-      //      */
+      Console.WriteLine($"CheckFileDate({fi.CreationTime}, {early}, {late}) = {rv}");
 
-      //     var tmRegex = opts.ProjectNameTightRegex + opts.DueDate;
-
-      //     Match tm = Regex.Match(fi.Name, tmRegex, RegexOptions.IgnoreCase);
-      //     if (tm.Success)
-      //     {
-      //       if (opts.Verbose) Console.WriteLine("         Tight match: " + fi.FullName);
-      //       return new PathAndPoints(backupDir + Path.DirectorySeparatorChar + fi.Name, 3, "", fi.CreationTime);
-      //     }
-
-      //     /*
-      //      * Loose match
-      //      */
-
-      //     /*
-      //      * Minimal match
-      //      */
-
-      //     Match mm = Regex.Match(fi.Name, ".unitypackage");
-      //     if (mm.Success)
-      //     {
-      //       if (opts.Verbose) Console.WriteLine("         Minimal match: " + fi.FullName);
-      //       return new PathAndPoints(backupDir + Path.DirectorySeparatorChar + fi.Name, 1, "", fi.CreationTime);
-      //     }
-      //   }
-      //   return new PathAndPoints(null, 0);
-      //}
+      return rv;
     }
   }
 }
@@ -318,6 +302,7 @@ public class RosterInfo
   // XXX - fix these so they are not-nullable.
   public string FullName { get; set; } = string.Empty;
   public string Email { get; set; } = string.Empty;
+  //public string School { get; set; } = string.Empty;
   public string LastName { get; set; } = string.Empty;
   public string FirstName { get; set; } = string.Empty;
   public string Username { get; set; } = string.Empty;
