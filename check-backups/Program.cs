@@ -290,8 +290,6 @@ namespace Check_Backups
       else if (fi.CreationTime >= late) rv = Created.Late;
       else rv = Created.InRange;
 
-      Console.WriteLine($"CheckFileDate({fi.CreationTime}, {early}, {late}) = {rv}");
-
       return rv;
     }
   }
