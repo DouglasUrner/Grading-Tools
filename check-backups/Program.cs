@@ -208,7 +208,7 @@ namespace Check_Backups
       DirectoryInfo di = new DirectoryInfo(backupDir);
       DateTime created = new DateTime(0);
       string assigned = "2023-02-06";
-      string due = "2023-02-09";
+      string due = "2023-02-09T23:59:59";
       string msg = string.Empty;
       Created fileCreated;
 
